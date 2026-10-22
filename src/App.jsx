@@ -1,193 +1,165 @@
 import { useEffect, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth'
-import { auth } from './firebase'
+import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp } from 'firebase/firestore'
+import { auth, db } from './firebase'
 
-const blogs = [
-  {
-    category: 'Creativity',
-    title: 'The quiet power of making things',
-    excerpt: 'Why a small daily practice can become the most meaningful part of your day.',
-    author: 'Maya Chen',
-    date: 'May 18, 2024',
-    color: 'coral',
-  },
-  {
-    category: 'Technology',
-    title: 'Designing a calmer digital life',
-    excerpt: 'A practical guide to building a relationship with technology that feels intentional.',
-    author: 'Alex Morgan',
-    date: 'May 14, 2024',
-    color: 'blue',
-  },
-  {
-    category: 'Travel',
-    title: 'A weekend in the slow lane',
-    excerpt: 'Trading a packed itinerary for open roads, good coffee, and room to wander.',
-    author: 'Noah Williams',
-    date: 'May 10, 2024',
-    color: 'gold',
-  },
-  {
-    category: 'Culture',
-    title: 'What our favorite stories teach us',
-    excerpt: 'The books, films, and conversations that quietly shape how we see the world.',
-    author: 'Priya Shah',
-    date: 'May 06, 2024',
-    color: 'lilac',
-  },
-  {
-    category: 'Wellbeing',
-    title: 'The art of leaving space',
-    excerpt: 'A reminder that rest is not an interruption to a full life — it is part of one.',
-    author: 'Sam Rivera',
-    date: 'April 29, 2024',
-    color: 'mint',
-  },
-  {
-    category: 'Ideas',
-    title: 'Small questions, better answers',
-    excerpt: 'How curiosity can help us move from certainty toward a more useful kind of clarity.',
-    author: 'Lena Ortiz',
-    date: 'April 24, 2024',
-    color: 'peach',
-  },
-  {
-    category: 'Food',
-    title: 'A table set for connection',
-    excerpt: 'Recipes are only the beginning. The best meals are really about who gathers around them.',
-    author: 'Theo Brooks',
-    date: 'April 20, 2024',
-    color: 'rose',
-  },
-  {
-    category: 'Work',
-    title: 'Rethinking the busy badge',
-    excerpt: 'There is more to meaningful progress than how much we can fit into a calendar.',
-    author: 'Jordan Lee',
-    date: 'April 16, 2024',
-    color: 'sky',
-  },
-  {
-    category: 'Nature',
-    title: 'Lessons from paying attention',
-    excerpt: 'A walk outside can change what we notice, and what we notice can change everything.',
-    author: 'Erin Park',
-    date: 'April 11, 2024',
-    color: 'forest',
-  },
-  {
-    category: 'Community',
-    title: 'The places we make together',
-    excerpt: 'Every welcoming space starts with a few people choosing to make room for one another.',
-    author: 'Owen Davis',
-    date: 'April 04, 2024',
-    color: 'plum',
-  },
-]
+function navigate(path) {
+  window.history.pushState({}, '', path)
+  window.dispatchEvent(new PopStateEvent('popstate'))
+}
 
 function BlogCard({ blog, index }) {
   return (
     <article className="blog-card" data-testid="blog-card">
-      <div className={`blog-art ${blog.color}`} aria-hidden="true">
-        <span>{String(index + 1).padStart(2, '0')}</span>
-      </div>
+      {blog.imageUrl ? (
+        <img className="blog-art blog-image" src={blog.imageUrl} alt="" />
+      ) : (
+        <div className={`blog-art ${['coral', 'blue', 'gold', 'lilac', 'mint'][index % 5]}`} aria-hidden="true">
+          <span>{String(index + 1).padStart(2, '0')}</span>
+        </div>
+      )}
       <div className="blog-card-content">
-        <p className="category">{blog.category}</p>
+        <p className="category">{blog.category || 'Journal'}</p>
         <h2>{blog.title}</h2>
-        <p className="excerpt">{blog.excerpt}</p>
+        <p className="excerpt">{blog.excerpt || blog.content?.slice(0, 120)}</p>
         <div className="card-meta">
-          <span>{blog.author}</span>
-          <span>{blog.date}</span>
+          <span>{blog.author?.name || 'BlogX author'}</span>
+          <span>{blog.createdAt?.toDate ? blog.createdAt.toDate().toLocaleDateString() : 'Just now'}</span>
         </div>
       </div>
     </article>
   )
 }
 
-function App() {
-  const [user, setUser] = useState(null)
-  const [authError, setAuthError] = useState('')
-  const [isSigningIn, setIsSigningIn] = useState(false)
-
-  useEffect(() => onAuthStateChanged(auth, setUser), [])
-
-  useEffect(() => {
-    getRedirectResult(auth).catch((error) => {
-      if (error.code !== 'auth/popup-closed-by-user') {
-        setAuthError('Google sign-in could not be completed. Please try again.')
-      }
-    })
-  }, [])
-
-  async function handleGoogleSignIn() {
-    setAuthError('')
-    setIsSigningIn(true)
-
-    try {
-      await signInWithRedirect(auth, new GoogleAuthProvider())
-    } catch (error) {
-      if (error.code !== 'auth/popup-closed-by-user') {
-        setAuthError('Google sign-in could not be completed. Please try again.')
-      }
-    } finally {
-      setIsSigningIn(false)
-    }
-  }
-
-  async function handleSignOut() {
-    setAuthError('')
-    await signOut(auth)
+function AccountActions({ user, onSignIn, onSignOut, signingIn }) {
+  if (!user) {
+    return <button className="signup-button" type="button" onClick={onSignIn} disabled={signingIn}>{signingIn ? 'Opening Google…' : 'Sign in / Sign up with Google'}</button>
   }
 
   return (
-    <div className="page-shell">
-      <header className="site-header">
-        <a className="logo" href="/" aria-label="BlogX home">Blog<span>X</span></a>
-        <nav aria-label="Main navigation">
-          <a className="nav-link" href="#latest">Latest stories</a>
-          {user ? (
-            <div className="account-actions">
-              {user.photoURL && <img className="user-avatar" src={user.photoURL} alt="" />}
-              <span className="user-name">{user.displayName || user.email}</span>
-              <button className="signup-button" type="button" onClick={handleSignOut}>Sign out</button>
-            </div>
-          ) : (
-            <button className="signup-button" type="button" onClick={handleGoogleSignIn} disabled={isSigningIn}>
-              {isSigningIn ? 'Opening Google…' : 'Sign in / Sign up with Google'}
-            </button>
-          )}
-        </nav>
-      </header>
-
-      {authError && <p className="auth-error" role="alert">{authError}</p>}
-
-      <main>
-        <section className="hero" aria-labelledby="page-title">
-          <p className="eyebrow">A place for good ideas</p>
-          <h1 id="page-title">Stories that stay<br /><em>with you.</em></h1>
-          <p className="hero-copy">Thoughtful writing on creativity, culture, and the little things that make life interesting.</p>
-        </section>
-
-        <section className="latest-section" id="latest" aria-labelledby="latest-title">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Fresh from the journal</p>
-              <h2 id="latest-title">Latest stories</h2>
-            </div>
-            <span className="story-count">10 stories</span>
-          </div>
-          <div className="blog-grid">
-            {blogs.map((blog, index) => <BlogCard key={blog.title} blog={blog} index={index} />)}
-          </div>
-        </section>
-      </main>
-
-      <footer id="signup" className="site-footer">
-        <p>Make room for a good story.</p>
-        <a className="signup-button footer-button" href="mailto:hello@blogx.example">Sign up for updates <span aria-hidden="true">↗</span></a>
-      </footer>
+    <div className="account-actions">
+      {user.photoURL && <img className="user-avatar" src={user.photoURL} alt="" />}
+      <span className="user-name">{user.displayName || user.email}</span>
+      <button className="signup-button" type="button" onClick={onSignOut}>Sign out</button>
     </div>
   )
+}
+
+function Header({ user, onSignIn, onSignOut, signingIn }) {
+  return (
+    <header className="site-header">
+      <a className="logo" href="/" onClick={(event) => { event.preventDefault(); navigate('/') }} aria-label="BlogX home">Blog<span>X</span></a>
+      <nav aria-label="Main navigation">
+        <a className="nav-link" href="#latest">Latest stories</a>
+        {user && <a className="nav-link" href="/write" onClick={(event) => { event.preventDefault(); navigate('/write') }}>Write</a>}
+        <AccountActions user={user} onSignIn={onSignIn} onSignOut={onSignOut} signingIn={signingIn} />
+      </nav>
+    </header>
+  )
+}
+
+function Editor({ user, onSaved }) {
+  const [title, setTitle] = useState('')
+  const [excerpt, setExcerpt] = useState('')
+  const [category, setCategory] = useState('Ideas')
+  const [content, setContent] = useState('# Your story\n\nStart writing in **Markdown**...')
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+
+  async function saveBlog(event) {
+    event.preventDefault()
+    if (!title.trim() || !content.trim()) {
+      setError('Add a title and some Markdown content before saving.')
+      return
+    }
+
+    setSaving(true)
+    setError('')
+    setMessage('')
+    try {
+      await addDoc(collection(db, 'blogs'), {
+        title: title.trim(),
+        excerpt: excerpt.trim(),
+        category: category.trim() || 'Ideas',
+        content,
+        author: { uid: user.uid, name: user.displayName || user.email, photoURL: user.photoURL || '' },
+        createdAt: serverTimestamp(),
+        published: true,
+      })
+      setMessage('Blog published successfully.')
+      setTitle('')
+      setExcerpt('')
+      setContent('')
+      onSaved()
+    } catch (saveError) {
+      setError('Could not publish the blog. Check Firebase permissions and try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <main className="editor-page">
+      <div className="editor-heading">
+        <div><p className="eyebrow">Your journal</p><h1>Write a story.</h1></div>
+        <button className="text-button" type="button" onClick={() => navigate('/')}>Back home</button>
+      </div>
+      <form className="editor-form" onSubmit={saveBlog}>
+        <div className="editor-fields">
+          <input aria-label="Blog title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Title" />
+          <input aria-label="Blog excerpt" value={excerpt} onChange={(event) => setExcerpt(event.target.value)} placeholder="Short excerpt" />
+          <input aria-label="Blog category" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Category" />
+        </div>
+        <div className="editor-grid">
+          <label className="editor-panel"><span>Markdown</span><textarea aria-label="Markdown editor" value={content} onChange={(event) => setContent(event.target.value)} /></label>
+          <div className="editor-panel preview-panel"><span>Preview</span><div className="markdown-preview"><ReactMarkdown>{content || '*Your preview will appear here*'}</ReactMarkdown></div></div>
+        </div>
+        {error && <p className="form-error" role="alert">{error}</p>}
+        {message && <p className="form-success" role="status">{message}</p>}
+        <button className="publish-button" type="submit" disabled={saving}>{saving ? 'Publishing…' : 'Publish blog'}</button>
+      </form>
+    </main>
+  )
+}
+
+function Home({ blogs, loading, error }) {
+  return (
+    <main>
+      <section className="hero" aria-labelledby="page-title"><p className="eyebrow">A place for good ideas</p><h1 id="page-title">Stories that stay<br /><em>with you.</em></h1><p className="hero-copy">Thoughtful writing on creativity, culture, and the little things that make life interesting.</p></section>
+      <section className="latest-section" id="latest" aria-labelledby="latest-title">
+        <div className="section-heading"><div><p className="eyebrow">Fresh from the journal</p><h2 id="latest-title">Latest stories</h2></div><span className="story-count">{blogs.length} stories</span></div>
+        {loading && <p className="empty-state">Loading stories…</p>}
+        {error && <p className="form-error" role="alert">{error}</p>}
+        {!loading && !error && blogs.length === 0 && <p className="empty-state">No stories yet. Sign in and write the first one.</p>}
+        <div className="blog-grid">{blogs.map((blog, index) => <BlogCard key={blog.id} blog={blog} index={index} />)}</div>
+      </section>
+    </main>
+  )
+}
+
+function App() {
+  const [user, setUser] = useState(null)
+  const [authError, setAuthError] = useState('')
+  const [signingIn, setSigningIn] = useState(false)
+  const [path, setPath] = useState(window.location.pathname)
+  const [blogs, setBlogs] = useState([])
+  const [loadingBlogs, setLoadingBlogs] = useState(true)
+  const [blogsError, setBlogsError] = useState('')
+
+  useEffect(() => onAuthStateChanged(auth, setUser), [])
+  useEffect(() => { getRedirectResult(auth).catch(() => setAuthError('Google sign-in could not be completed. Please try again.')) }, [])
+  useEffect(() => { const handlePopState = () => setPath(window.location.pathname); window.addEventListener('popstate', handlePopState); return () => window.removeEventListener('popstate', handlePopState) }, [])
+  useEffect(() => {
+    const blogsQuery = query(collection(db, 'blogs'), orderBy('createdAt', 'desc'), limit(10))
+    return onSnapshot(blogsQuery, (snapshot) => { setBlogs(snapshot.docs.map((document) => ({ id: document.id, ...document.data() }))); setLoadingBlogs(false) }, () => { setBlogsError('Stories could not be loaded from Firestore.'); setLoadingBlogs(false) })
+  }, [])
+
+  async function handleGoogleSignIn() { setAuthError(''); setSigningIn(true); await signInWithRedirect(auth, new GoogleAuthProvider()) }
+  async function handleSignOut() { await signOut(auth); navigate('/') }
+
+  return <div className="page-shell"><Header user={user} onSignIn={handleGoogleSignIn} onSignOut={handleSignOut} signingIn={signingIn} />{authError && <p className="auth-error" role="alert">{authError}</p>}{path === '/write' && user ? <Editor user={user} onSaved={() => navigate('/')} /> : <Home blogs={blogs} loading={loadingBlogs} error={blogsError} />}<footer className="site-footer"><p>Make room for a good story.</p></footer></div>
 }
 
 export default App

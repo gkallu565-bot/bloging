@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 
 // Firebase web configuration is intentionally safe to expose in client code.
 // Security is enforced by Firebase Authentication and project rules.
@@ -16,3 +17,4 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig)
 
 export const auth = getAuth(firebaseApp)
+export const db = getFirestore(firebaseApp)
