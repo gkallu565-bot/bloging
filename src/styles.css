@@ -19,8 +19,13 @@ a { color: inherit; text-decoration: none; }
 nav { align-items: center; display: flex; gap: 30px; }
 .nav-link { color: #66716c; font-size: .85rem; }
 .nav-link:hover { color: #1f2926; }
-.signup-button { background: #1f2926; border-radius: 999px; color: white; display: inline-block; font-size: .82rem; padding: 12px 20px; transition: transform .2s, background .2s; }
+.signup-button { background: #1f2926; border: 0; border-radius: 999px; color: white; cursor: pointer; display: inline-block; font-family: inherit; font-size: .82rem; padding: 12px 20px; transition: transform .2s, background .2s; }
 .signup-button:hover { background: #ef715b; transform: translateY(-2px); }
+.signup-button:disabled { cursor: wait; opacity: .7; }
+.account-actions { align-items: center; display: flex; gap: 10px; }
+.user-avatar { border-radius: 50%; height: 30px; object-fit: cover; width: 30px; }
+.user-name { color: #66716c; font-size: .8rem; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.auth-error { background: #fff0ed; color: #b84635; font-size: .82rem; margin: 0 auto; max-width: 1240px; padding: 12px 32px; }
 
 .hero { margin: 0 auto; max-width: 1240px; padding: 112px 32px 142px; }
 .eyebrow { color: #ef715b; font-size: .7rem; font-weight: 700; letter-spacing: .15em; margin: 0 0 19px; text-transform: uppercase; }
@@ -54,6 +59,9 @@ nav { align-items: center; display: flex; gap: 30px; }
 @media (max-width: 560px) {
   .site-header { padding: 22px 20px; }
   .nav-link { display: none; }
+  .user-name { display: none; }
+  .account-actions { gap: 7px; }
+  .account-actions .signup-button, nav > .signup-button { font-size: .68rem; padding: 10px 12px; }
   .hero { padding: 72px 20px 85px; }
   .hero h1 { font-size: 4rem; }
   .latest-section { padding: 58px 20px 80px; }

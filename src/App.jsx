@@ -1,3 +1,7 @@
+import { useEffect, useState } from 'react'
+import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth'
+import { auth } from './firebase'
+
 const blogs = [
   {
     category: 'Creativity',
@@ -101,15 +105,53 @@ function BlogCard({ blog, index }) {
 }
 
 function App() {
+  const [user, setUser] = useState(null)
+  const [authError, setAuthError] = useState('')
+  const [isSigningIn, setIsSigningIn] = useState(false)
+
+  useEffect(() => onAuthStateChanged(auth, setUser), [])
+
+  async function handleGoogleSignIn() {
+    setAuthError('')
+    setIsSigningIn(true)
+
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider())
+    } catch (error) {
+      if (error.code !== 'auth/popup-closed-by-user') {
+        setAuthError('Google sign-in could not be completed. Please try again.')
+      }
+    } finally {
+      setIsSigningIn(false)
+    }
+  }
+
+  async function handleSignOut() {
+    setAuthError('')
+    await signOut(auth)
+  }
+
   return (
     <div className="page-shell">
       <header className="site-header">
         <a className="logo" href="/" aria-label="BlogX home">Blog<span>X</span></a>
         <nav aria-label="Main navigation">
           <a className="nav-link" href="#latest">Latest stories</a>
-          <a className="signup-button" href="#signup">Sign up</a>
+          {user ? (
+            <div className="account-actions">
+              {user.photoURL && <img className="user-avatar" src={user.photoURL} alt="" />}
+              <span className="user-name">{user.displayName || user.email}</span>
+              <button className="signup-button" type="button" onClick={handleSignOut}>Sign out</button>
+            </div>
+          ) : (
+            <button className="signup-button" type="button" onClick={handleGoogleSignIn} disabled={isSigningIn}>
+              {isSigningIn ? 'Opening Google…' : 'Sign in / Sign up with Google'}
+            </button>
+          )}
         </nav>
       </header>
+
+      {authError && <p className="auth-error" role="alert">{authError}</p>}
 
       <main>
         <section className="hero" aria-labelledby="page-title">
