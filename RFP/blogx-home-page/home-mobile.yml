@@ -1,0 +1,117 @@
+- generic [ref=f2e3]:
+  - banner [ref=f2e4]:
+    - link "BlogX home" [ref=f2e5] [cursor=pointer]:
+      - /url: /
+      - text: BlogX
+    - navigation "Main navigation" [ref=f2e6]:
+      - link "Sign up" [ref=f2e8] [cursor=pointer]:
+        - /url: "#signup"
+  - main [ref=f2e9]:
+    - region [ref=f2e10]:
+      - paragraph [ref=f2e11]: A place for good ideas
+      - heading [level=1] [ref=f2e12]:
+        - text: Stories that stay
+        - emphasis [ref=f2e13]: with you.
+      - paragraph [ref=f2e14]: Thoughtful writing on creativity, culture, and the little things that make life interesting.
+    - region [ref=f2e15]:
+      - generic [ref=f2e16]:
+        - generic [ref=f2e17]:
+          - paragraph [ref=f2e18]: Fresh from the journal
+          - heading "Latest stories" [level=2] [ref=f2e19]
+        - generic [ref=f2e20]: 10 stories
+      - generic [ref=f2e21]:
+        - article [ref=f2e22]:
+          - generic [ref=f2e24]: "01"
+          - generic [ref=f2e25]:
+            - paragraph [ref=f2e26]: Creativity
+            - heading "The quiet power of making things" [level=2] [ref=f2e27]
+            - paragraph [ref=f2e28]: Why a small daily practice can become the most meaningful part of your day.
+            - generic [ref=f2e29]:
+              - generic [ref=f2e30]: Maya Chen
+              - generic [ref=f2e31]: May 18, 2024
+        - article [ref=f2e32]:
+          - generic [ref=f2e34]: "02"
+          - generic [ref=f2e35]:
+            - paragraph [ref=f2e36]: Technology
+            - heading "Designing a calmer digital life" [level=2] [ref=f2e37]
+            - paragraph [ref=f2e38]: A practical guide to building a relationship with technology that feels intentional.
+            - generic [ref=f2e39]:
+              - generic [ref=f2e40]: Alex Morgan
+              - generic [ref=f2e41]: May 14, 2024
+        - article [ref=f2e42]:
+          - generic [ref=f2e44]: "03"
+          - generic [ref=f2e45]:
+            - paragraph [ref=f2e46]: Travel
+            - heading "A weekend in the slow lane" [level=2] [ref=f2e47]
+            - paragraph [ref=f2e48]: Trading a packed itinerary for open roads, good coffee, and room to wander.
+            - generic [ref=f2e49]:
+              - generic [ref=f2e50]: Noah Williams
+              - generic [ref=f2e51]: May 10, 2024
+        - article [ref=f2e52]:
+          - generic [ref=f2e54]: "04"
+          - generic [ref=f2e55]:
+            - paragraph [ref=f2e56]: Culture
+            - heading "What our favorite stories teach us" [level=2] [ref=f2e57]
+            - paragraph [ref=f2e58]: The books, films, and conversations that quietly shape how we see the world.
+            - generic [ref=f2e59]:
+              - generic [ref=f2e60]: Priya Shah
+              - generic [ref=f2e61]: May 06, 2024
+        - article [ref=f2e62]:
+          - generic [ref=f2e64]: "05"
+          - generic [ref=f2e65]:
+            - paragraph [ref=f2e66]: Wellbeing
+            - heading "The art of leaving space" [level=2] [ref=f2e67]
+            - paragraph [ref=f2e68]: A reminder that rest is not an interruption to a full life — it is part of one.
+            - generic [ref=f2e69]:
+              - generic [ref=f2e70]: Sam Rivera
+              - generic [ref=f2e71]: April 29, 2024
+        - article [ref=f2e72]:
+          - generic [ref=f2e74]: "06"
+          - generic [ref=f2e75]:
+            - paragraph [ref=f2e76]: Ideas
+            - heading "Small questions, better answers" [level=2] [ref=f2e77]
+            - paragraph [ref=f2e78]: How curiosity can help us move from certainty toward a more useful kind of clarity.
+            - generic [ref=f2e79]:
+              - generic [ref=f2e80]: Lena Ortiz
+              - generic [ref=f2e81]: April 24, 2024
+        - article [ref=f2e82]:
+          - generic [ref=f2e84]: "07"
+          - generic [ref=f2e85]:
+            - paragraph [ref=f2e86]: Food
+            - heading "A table set for connection" [level=2] [ref=f2e87]
+            - paragraph [ref=f2e88]: Recipes are only the beginning. The best meals are really about who gathers around them.
+            - generic [ref=f2e89]:
+              - generic [ref=f2e90]: Theo Brooks
+              - generic [ref=f2e91]: April 20, 2024
+        - article [ref=f2e92]:
+          - generic [ref=f2e94]: "08"
+          - generic [ref=f2e95]:
+            - paragraph [ref=f2e96]: Work
+            - heading "Rethinking the busy badge" [level=2] [ref=f2e97]
+            - paragraph [ref=f2e98]: There is more to meaningful progress than how much we can fit into a calendar.
+            - generic [ref=f2e99]:
+              - generic [ref=f2e100]: Jordan Lee
+              - generic [ref=f2e101]: April 16, 2024
+        - article [ref=f2e102]:
+          - generic [ref=f2e104]: "09"
+          - generic [ref=f2e105]:
+            - paragraph [ref=f2e106]: Nature
+            - heading "Lessons from paying attention" [level=2] [ref=f2e107]
+            - paragraph [ref=f2e108]: A walk outside can change what we notice, and what we notice can change everything.
+            - generic [ref=f2e109]:
+              - generic [ref=f2e110]: Erin Park
+              - generic [ref=f2e111]: April 11, 2024
+        - article [ref=f2e112]:
+          - generic [ref=f2e114]: "10"
+          - generic [ref=f2e115]:
+            - paragraph [ref=f2e116]: Community
+            - heading "The places we make together" [level=2] [ref=f2e117]
+            - paragraph [ref=f2e118]: Every welcoming space starts with a few people choosing to make room for one another.
+            - generic [ref=f2e119]:
+              - generic [ref=f2e120]: Owen Davis
+              - generic [ref=f2e121]: April 04, 2024
+  - contentinfo [ref=f2e122]:
+    - paragraph [ref=f2e123]: Make room for a good story.
+    - link "Sign up for updates" [ref=f2e124] [cursor=pointer]:
+      - /url: mailto:hello@blogx.example
+      - text: Sign up for updates ↗
