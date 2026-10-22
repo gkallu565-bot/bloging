@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth'
 import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp } from 'firebase/firestore'
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
-import { auth, db, storage } from './firebase'
+import { auth, db } from './firebase'
 
 function navigate(path) {
   window.history.pushState({}, '', path)
@@ -65,7 +64,6 @@ function Editor({ user, onSaved }) {
   const [excerpt, setExcerpt] = useState('')
   const [category, setCategory] = useState('Ideas')
   const [content, setContent] = useState('# Your story\n\nStart writing in **Markdown**...')
-  const [image, setImage] = useState(null)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -81,19 +79,11 @@ function Editor({ user, onSaved }) {
     setError('')
     setMessage('')
     try {
-      let imageUrl = ''
-      if (image) {
-        const imageRef = ref(storage, `blog-images/${user.uid}/${crypto.randomUUID()}-${image.name}`)
-        await uploadBytes(imageRef, image)
-        imageUrl = await getDownloadURL(imageRef)
-      }
-
       await addDoc(collection(db, 'blogs'), {
         title: title.trim(),
         excerpt: excerpt.trim(),
         category: category.trim() || 'Ideas',
         content,
-        imageUrl,
         author: { uid: user.uid, name: user.displayName || user.email, photoURL: user.photoURL || '' },
         createdAt: serverTimestamp(),
         published: true,
@@ -102,8 +92,6 @@ function Editor({ user, onSaved }) {
       setTitle('')
       setExcerpt('')
       setContent('')
-      setImage(null)
-      document.querySelector('#blog-image').value = ''
       onSaved()
     } catch (saveError) {
       setError('Could not publish the blog. Check Firebase permissions and try again.')
@@ -123,8 +111,6 @@ function Editor({ user, onSaved }) {
           <input aria-label="Blog title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Title" />
           <input aria-label="Blog excerpt" value={excerpt} onChange={(event) => setExcerpt(event.target.value)} placeholder="Short excerpt" />
           <input aria-label="Blog category" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Category" />
-          <label className="file-input">Upload cover image<input id="blog-image" type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} /></label>
-          {image && <p className="file-name">Selected: {image.name}</p>}
         </div>
         <div className="editor-grid">
           <label className="editor-panel"><span>Markdown</span><textarea aria-label="Markdown editor" value={content} onChange={(event) => setContent(event.target.value)} /></label>

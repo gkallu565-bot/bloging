@@ -15,17 +15,12 @@
 | TC-02 | USER ACTION REQUIRED | Requires a Google-authenticated browser session. |
 | TC-03 | PENDING | Requires the authenticated editor. |
 | TC-04 | PENDING | Requires the authenticated editor. |
-| TC-05 | BLOCKED | Firebase Storage is not initialized for project `bloaging`. |
-| TC-06 | BLOCKED | Firebase Storage setup and a user-owned Google session are required. |
+| TC-05 | USER ACTION REQUIRED | Requires a user-owned Google session to publish a blog. |
+| TC-06 | PENDING | Requires a saved blog. |
 | TC-07 | PENDING | Requires a saved blog. |
-| TC-08 | PENDING | Requires a saved blog. |
-| TC-09 | PASS | Homepage reads from Firestore and displays the empty state without console errors. |
-| TC-10 | PARTIAL | React production build passed and Firestore rules deployed; Storage rules/Hosting are waiting for Storage initialization. |
+| TC-08 | PASS | Homepage reads from Firestore and displays the empty state without console errors. |
+| TC-09 | PARTIAL | React production build passed and Firestore rules deployed; authenticated blog creation remains to be verified. |
 
-## Current blocker
+## Remaining verification
 
-Firebase Storage must be initialized in project `bloaging` before image upload can work:
-
-https://console.firebase.google.com/project/bloaging/storage
-
-Click **Get started**, choose the required Storage setup options, and then the Storage rules and Hosting deployment can continue.
+The final publish test requires the user to complete Google login in the headed browser. Image upload is intentionally out of scope for this version.
