@@ -10,5 +10,5 @@
 
 - Live page title: `BlogX | Stories for curious minds`
 - Google sign-in/sign-up control visible
-- Google Accounts popup opens successfully
+- Google Accounts redirect opens successfully
 - Signed-in and sign-out states require the user's Google session and were not automated with credentials.

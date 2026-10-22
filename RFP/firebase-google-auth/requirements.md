@@ -7,7 +7,7 @@ Add Google authentication to the BlogX homepage using Firebase Authentication. T
 ## Scope
 
 - Use the Firebase Web SDK and Firebase project `bloaging`.
-- Use Google's Firebase provider with `signInWithPopup`.
+- Use Google's Firebase provider with Firebase redirect authentication.
 - Listen for auth state changes so refreshes restore the current Firebase session.
 - Show a Google sign-in/sign-up action while logged out.
 - Show the user's avatar/name or email and a sign-out action while logged in.

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth'
+import { GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth'
 import { auth } from './firebase'
 
 const blogs = [
@@ -111,12 +111,20 @@ function App() {
 
   useEffect(() => onAuthStateChanged(auth, setUser), [])
 
+  useEffect(() => {
+    getRedirectResult(auth).catch((error) => {
+      if (error.code !== 'auth/popup-closed-by-user') {
+        setAuthError('Google sign-in could not be completed. Please try again.')
+      }
+    })
+  }, [])
+
   async function handleGoogleSignIn() {
     setAuthError('')
     setIsSigningIn(true)
 
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider())
+      await signInWithRedirect(auth, new GoogleAuthProvider())
     } catch (error) {
       if (error.code !== 'auth/popup-closed-by-user') {
         setAuthError('Google sign-in could not be completed. Please try again.')
