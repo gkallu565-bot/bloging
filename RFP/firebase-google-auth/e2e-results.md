@@ -12,14 +12,14 @@
 | ID | Result | Notes |
 | --- | --- | --- |
 | TC-01 | PASS | Homepage loaded with the `Sign in / Sign up with Google` control. |
-| TC-02 | PASS | Clicking the control opened the Firebase Google auth popup. |
+| TC-02 | PASS | Clicking the control redirects to Google Accounts without the popup COOP issue. |
 | TC-03 | USER ACTION REQUIRED | Google login page opens successfully; completing authentication requires the user's Google credentials. |
 | TC-04 | USER ACTION REQUIRED | Requires a successful authenticated session. |
 | TC-05 | USER ACTION REQUIRED | Requires a successful authenticated session. |
-| TC-06 | PASS | The app handles popup failure/cancellation with a friendly alert and remains usable. |
+| TC-06 | PASS | The app handles authentication failure and remains usable. |
 | TC-07 | PASS | Existing homepage content remains visible, including 10 blog cards. |
 | TC-08 | PASS | `npm run build` completed successfully. |
-| TC-09 | PASS | Auth-enabled build deployed to `https://bloaging.web.app`; live page and Google popup verified. |
+| TC-09 | PASS | Auth-enabled build deployed to `https://bloaging.web.app`; live page and Google redirect verified. |
 
 ## Current Firebase setup blocker
 

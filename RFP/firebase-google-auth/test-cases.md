@@ -3,7 +3,7 @@
 | ID | Scenario | Expected result | Level |
 | --- | --- | --- | --- |
 | TC-01 | Load the homepage while logged out | BlogX homepage loads and the Google sign-in/sign-up control is visible | E2E |
-| TC-02 | Click Google sign-in/sign-up | A headed browser opens the Google authentication popup | E2E/manual approval |
+| TC-02 | Click Google sign-in/sign-up | A headed browser redirects to the Google authentication page | E2E/manual approval |
 | TC-03 | Complete Google authentication | Header shows the authenticated user's identity and `Sign out` | E2E/manual approval |
 | TC-04 | Reload after authentication | Firebase restores the session and the signed-in header remains visible | E2E/manual approval |
 | TC-05 | Sign out | User returns to the logged-out Google sign-in/sign-up control | E2E/manual approval |
