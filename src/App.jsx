@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth'
 import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp } from 'firebase/firestore'
-import { auth, db } from './firebase'
+import { httpsCallable } from 'firebase/functions'
+import { auth, db, functions } from './firebase'
 
 function navigate(path) {
   window.history.pushState({}, '', path)
   window.dispatchEvent(new PopStateEvent('popstate'))
 }
 
-function BlogCard({ blog, index }) {
+function BlogCard({ blog, index, user, onSummarize, summarizing }) {
+  const isCreator = user && blog.author?.uid === user.uid
   return (
     <article className="blog-card" data-testid="blog-card">
       {blog.imageUrl ? (
@@ -27,6 +29,9 @@ function BlogCard({ blog, index }) {
           <span>{blog.author?.name || 'BlogX author'}</span>
           <span>{blog.createdAt?.toDate ? blog.createdAt.toDate().toLocaleDateString() : 'Just now'}</span>
         </div>
+        {isCreator && <div className="summary-area">
+          {blog.summary ? <div className="blog-summary"><strong>Summary</strong><p>{blog.summary}</p></div> : <button className="summary-button" type="button" onClick={() => onSummarize(blog.id)} disabled={summarizing}>{summarizing ? 'Summarizing…' : 'Summarize blog'}</button>}
+        </div>}
       </div>
     </article>
   )
@@ -124,7 +129,7 @@ function Editor({ user, onSaved }) {
   )
 }
 
-function Home({ blogs, loading, error }) {
+function Home({ blogs, loading, error, user, onSummarize, summarizingId }) {
   return (
     <main>
       <section className="hero" aria-labelledby="page-title"><p className="eyebrow">A place for good ideas</p><h1 id="page-title">Stories that stay<br /><em>with you.</em></h1><p className="hero-copy">Thoughtful writing on creativity, culture, and the little things that make life interesting.</p></section>
@@ -133,7 +138,7 @@ function Home({ blogs, loading, error }) {
         {loading && <p className="empty-state">Loading stories…</p>}
         {error && <p className="form-error" role="alert">{error}</p>}
         {!loading && !error && blogs.length === 0 && <p className="empty-state">No stories yet. Sign in and write the first one.</p>}
-        <div className="blog-grid">{blogs.map((blog, index) => <BlogCard key={blog.id} blog={blog} index={index} />)}</div>
+        <div className="blog-grid">{blogs.map((blog, index) => <BlogCard key={blog.id} blog={blog} index={index} user={user} onSummarize={onSummarize} summarizing={summarizingId === blog.id} />)}</div>
       </section>
     </main>
   )
@@ -147,6 +152,7 @@ function App() {
   const [blogs, setBlogs] = useState([])
   const [loadingBlogs, setLoadingBlogs] = useState(true)
   const [blogsError, setBlogsError] = useState('')
+  const [summarizingId, setSummarizingId] = useState('')
 
   useEffect(() => onAuthStateChanged(auth, setUser), [])
   useEffect(() => { getRedirectResult(auth).catch(() => setAuthError('Google sign-in could not be completed. Please try again.')) }, [])
@@ -158,8 +164,22 @@ function App() {
 
   async function handleGoogleSignIn() { setAuthError(''); setSigningIn(true); await signInWithRedirect(auth, new GoogleAuthProvider()) }
   async function handleSignOut() { await signOut(auth); navigate('/') }
+  async function handleSummarize(blogId) {
+    setSummarizingId(blogId)
+    setBlogsError('')
+    try {
+      const summarizeBlog = httpsCallable(functions, 'summarizeBlog')
+      const result = await summarizeBlog({ blogId })
+      const { summary } = result.data
+      setBlogs((currentBlogs) => currentBlogs.map((blog) => blog.id === blogId ? { ...blog, summary } : blog))
+    } catch (error) {
+      setBlogsError(error.message || 'The blog could not be summarized.')
+    } finally {
+      setSummarizingId('')
+    }
+  }
 
-  return <div className="page-shell"><Header user={user} onSignIn={handleGoogleSignIn} onSignOut={handleSignOut} signingIn={signingIn} />{authError && <p className="auth-error" role="alert">{authError}</p>}{path === '/write' && user ? <Editor user={user} onSaved={() => navigate('/')} /> : <Home blogs={blogs} loading={loadingBlogs} error={blogsError} />}<footer className="site-footer"><p>Make room for a good story.</p></footer></div>
+  return <div className="page-shell"><Header user={user} onSignIn={handleGoogleSignIn} onSignOut={handleSignOut} signingIn={signingIn} />{authError && <p className="auth-error" role="alert">{authError}</p>}{path === '/write' && user ? <Editor user={user} onSaved={() => navigate('/')} /> : <Home blogs={blogs} loading={loadingBlogs} error={blogsError} user={user} onSummarize={handleSummarize} summarizingId={summarizingId} />}<footer className="site-footer"><p>Make room for a good story.</p></footer></div>
 }
 
 export default App
