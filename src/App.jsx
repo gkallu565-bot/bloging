@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth'
 import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp } from 'firebase/firestore'
-import { auth, db } from './firebase'
+import { httpsCallable } from 'firebase/functions'
+import { auth, db, functions } from './firebase'
 
 function navigate(path) {
   window.history.pushState({}, '', path)
@@ -139,6 +140,48 @@ function Home({ blogs, loading, error }) {
   )
 }
 
+function Chatbot() {
+  const [open, setOpen] = useState(false)
+  const [question, setQuestion] = useState('')
+  const [asking, setAsking] = useState(false)
+  const [messages, setMessages] = useState([])
+
+  async function askQuestion(event) {
+    event.preventDefault()
+    const text = question.trim()
+    if (!text || asking) return
+
+    setMessages((current) => [...current, { role: 'user', text }])
+    setQuestion('')
+    setAsking(true)
+    try {
+      const askBlogBot = httpsCallable(functions, 'askBlogBot')
+      const result = await askBlogBot({ question: text })
+      const { answer, sources = [] } = result.data
+      setMessages((current) => [...current, { role: 'assistant', text: answer, sources }])
+    } catch (error) {
+      setMessages((current) => [...current, { role: 'assistant', text: error.message || 'The chatbot is unavailable right now.' }])
+    } finally {
+      setAsking(false)
+    }
+  }
+
+  return (
+    <div className="chatbot">
+      {open && <section className="chat-panel" aria-label="BlogX chatbot">
+        <div className="chat-header"><div><strong>Ask BlogX</strong><span>Answers from our blogs only</span></div><button type="button" onClick={() => setOpen(false)} aria-label="Close chatbot">×</button></div>
+        <div className="chat-messages" aria-live="polite">
+          {messages.length === 0 && <p className="chat-intro">Ask me anything about the stories on BlogX.</p>}
+          {messages.map((message, index) => <div className={`chat-message ${message.role}`} key={`${message.role}-${index}`}><p>{message.text}</p>{message.sources?.length > 0 && <small>Sources: {message.sources.join(', ')}</small>}</div>)}
+          {asking && <div className="chat-message assistant"><p>Searching the BlogX stories…</p></div>}
+        </div>
+        <form className="chat-form" onSubmit={askQuestion}><input aria-label="Chat question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask about a blog…" /><button type="submit" disabled={asking}>Send</button></form>
+      </section>}
+      <button className="chat-toggle" type="button" onClick={() => setOpen((current) => !current)} aria-label="Open BlogX chatbot">{open ? '×' : 'Ask BlogX'}</button>
+    </div>
+  )
+}
+
 function App() {
   const [user, setUser] = useState(null)
   const [authError, setAuthError] = useState('')
@@ -159,7 +202,7 @@ function App() {
   async function handleGoogleSignIn() { setAuthError(''); setSigningIn(true); await signInWithRedirect(auth, new GoogleAuthProvider()) }
   async function handleSignOut() { await signOut(auth); navigate('/') }
 
-  return <div className="page-shell"><Header user={user} onSignIn={handleGoogleSignIn} onSignOut={handleSignOut} signingIn={signingIn} />{authError && <p className="auth-error" role="alert">{authError}</p>}{path === '/write' && user ? <Editor user={user} onSaved={() => navigate('/')} /> : <Home blogs={blogs} loading={loadingBlogs} error={blogsError} />}<footer className="site-footer"><p>Make room for a good story.</p></footer></div>
+  return <div className="page-shell"><Header user={user} onSignIn={handleGoogleSignIn} onSignOut={handleSignOut} signingIn={signingIn} />{authError && <p className="auth-error" role="alert">{authError}</p>}{path === '/write' && user ? <Editor user={user} onSaved={() => navigate('/')} /> : <Home blogs={blogs} loading={loadingBlogs} error={blogsError} />}<footer className="site-footer"><p>Make room for a good story.</p></footer><Chatbot /></div>
 }
 
 export default App

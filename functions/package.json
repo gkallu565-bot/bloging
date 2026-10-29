@@ -1,0 +1,9 @@
+{
+  "name": "blogx-functions",
+  "private": true,
+  "main": "lib/index.js",
+  "engines": { "node": "20" },
+  "scripts": { "build": "tsc", "deploy": "firebase deploy --only functions" },
+  "dependencies": { "@google/genai": "latest", "firebase-admin": "latest", "firebase-functions": "latest" },
+  "devDependencies": { "typescript": "latest" }
+}

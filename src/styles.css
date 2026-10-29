@@ -51,6 +51,14 @@ nav { align-items: center; display: flex; gap: 30px; }
 .site-footer { align-items: center; background: #1f2926; color: white; display: flex; justify-content: space-between; padding: 42px max(32px, calc((100vw - 1176px) / 2)); }
 .site-footer p { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin: 0; }
 .footer-button { background: #ef715b; }
+.chatbot { bottom: 24px; position: fixed; right: 24px; z-index: 10; }
+.chat-toggle { background: #ef715b; border: 0; border-radius: 999px; box-shadow: 0 10px 30px rgba(31,41,38,.2); color: white; cursor: pointer; font: 600 .8rem 'DM Sans', sans-serif; padding: 14px 20px; }
+.chat-panel { background: #f7f7f2; border: 1px solid #dedfd9; border-radius: 6px; bottom: 60px; box-shadow: 0 16px 45px rgba(31,41,38,.2); display: flex; flex-direction: column; height: 470px; overflow: hidden; position: absolute; right: 0; width: min(360px, calc(100vw - 40px)); }
+.chat-header { align-items: center; background: #1f2926; color: white; display: flex; justify-content: space-between; padding: 16px 18px; }
+.chat-header div { display: flex; flex-direction: column; gap: 4px; }.chat-header span { color: #b4c0ba; font-size: .65rem; }.chat-header button { background: none; border: 0; color: white; cursor: pointer; font-size: 1.4rem; }
+.chat-messages { display: flex; flex: 1; flex-direction: column; gap: 12px; overflow: auto; padding: 16px; }.chat-intro { color: #66716c; font-size: .8rem; line-height: 1.5; }
+.chat-message { border-radius: 5px; font-size: .78rem; line-height: 1.5; max-width: 88%; padding: 10px 12px; }.chat-message p { margin: 0; }.chat-message.user { align-self: flex-end; background: #ef715b; color: white; }.chat-message.assistant { align-self: flex-start; background: #eeeee8; color: #53605a; }.chat-message small { display: block; font-size: .62rem; margin-top: 7px; opacity: .7; }
+.chat-form { border-top: 1px solid #dedfd9; display: flex; gap: 8px; padding: 12px; }.chat-form input { background: white; border: 1px solid #dedfd9; border-radius: 3px; flex: 1; font: .78rem 'DM Sans', sans-serif; min-width: 0; padding: 10px; }.chat-form button { background: #1f2926; border: 0; border-radius: 3px; color: white; cursor: pointer; padding: 0 13px; }.chat-form button:disabled { opacity: .5; }
 .editor-page { margin: 0 auto; max-width: 1240px; padding: 68px 32px 110px; }
 .editor-heading { align-items: end; display: flex; justify-content: space-between; margin-bottom: 42px; }
 .editor-heading h1 { font-size: clamp(3rem, 7vw, 6rem); font-weight: 500; letter-spacing: -.08em; line-height: .95; margin: 0; }
@@ -103,4 +111,5 @@ nav { align-items: center; display: flex; gap: 30px; }
   .editor-grid { gap: 24px; }
   .editor-panel textarea, .markdown-preview { min-height: 320px; }
   .site-footer { align-items: start; flex-direction: column; gap: 24px; padding: 38px 20px; }
+  .chatbot { bottom: 16px; right: 16px; }
 }
