@@ -160,7 +160,10 @@ function Chatbot() {
       const { answer, sources = [] } = result.data
       setMessages((current) => [...current, { role: 'assistant', text: answer, sources }])
     } catch (error) {
-      setMessages((current) => [...current, { role: 'assistant', text: error.message || 'The chatbot is unavailable right now.' }])
+      const text = error.code === 'functions/internal'
+        ? 'The BlogX chatbot service is not deployed yet.'
+        : error.message || 'The chatbot is unavailable right now.'
+      setMessages((current) => [...current, { role: 'assistant', text }])
     } finally {
       setAsking(false)
     }
